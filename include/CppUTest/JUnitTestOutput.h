@@ -76,6 +76,8 @@ protected:
     virtual SimpleString encodeFileName(const SimpleString& fileName);
     virtual void writeFailure(JUnitTestCaseResultNode* node);
     virtual void writeFileEnding();
+
+    virtual SimpleString encodeRequirements(const SimpleString& requirements);
 };
 
 #endif

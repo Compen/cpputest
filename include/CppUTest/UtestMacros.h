@@ -55,7 +55,7 @@
 #define TEST_TEARDOWN() \
   virtual void teardown() CPPUTEST_OVERRIDE
 
-#define TEST(testGroup, testName) \
+#define TEST(testGroup, testName, testReq) \
   /* External declarations for strict compilers */ \
   class TEST_##testGroup##_##testName##_TestShell; \
   extern TEST_##testGroup##_##testName##_TestShell TEST_##testGroup##_##testName##_TestShell_instance; \
@@ -66,10 +66,10 @@
   class TEST_##testGroup##_##testName##_TestShell : public UtestShell { \
       virtual Utest* createTest() CPPUTEST_OVERRIDE { return new TEST_##testGroup##_##testName##_Test; } \
   } TEST_##testGroup##_##testName##_TestShell_instance; \
-  static TestInstaller TEST_##testGroup##_##testName##_Installer(TEST_##testGroup##_##testName##_TestShell_instance, #testGroup, #testName, __FILE__,__LINE__); \
+  static TestInstaller TEST_##testGroup##_##testName##_Installer(TEST_##testGroup##_##testName##_TestShell_instance, #testGroup, #testName, #testReq, __FILE__,__LINE__); \
     void TEST_##testGroup##_##testName##_Test::testBody()
 
-#define IGNORE_TEST(testGroup, testName)\
+#define IGNORE_TEST(testGroup, testName, testReq)\
   /* External declarations for strict compilers */ \
   class IGNORE##testGroup##_##testName##_TestShell; \
   extern IGNORE##testGroup##_##testName##_TestShell IGNORE##testGroup##_##testName##_TestShell_instance; \
@@ -80,7 +80,7 @@
   class IGNORE##testGroup##_##testName##_TestShell : public IgnoredUtestShell { \
       virtual Utest* createTest() CPPUTEST_OVERRIDE { return new IGNORE##testGroup##_##testName##_Test; } \
   } IGNORE##testGroup##_##testName##_TestShell_instance; \
-   static TestInstaller TEST_##testGroup##testName##_Installer(IGNORE##testGroup##_##testName##_TestShell_instance, #testGroup, #testName, __FILE__,__LINE__); \
+   static TestInstaller TEST_##testGroup##testName##_Installer(IGNORE##testGroup##_##testName##_TestShell_instance, #testGroup, #testName, #testReq, __FILE__,__LINE__); \
     void IGNORE##testGroup##_##testName##_Test::testBody ()
 
 #define IMPORT_TEST_GROUP(testGroup) \

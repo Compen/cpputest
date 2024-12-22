@@ -111,7 +111,7 @@ public:
     static bool isRethrowingExceptions();
 
 public:
-    UtestShell(const char* groupName, const char* testName, const char* fileName, size_t lineNumber);
+    UtestShell(const char* groupName, const char* testName, const char* testReq, const char* fileName, size_t lineNumber);
     virtual ~UtestShell();
 
     virtual UtestShell* addTest(UtestShell* test);
@@ -120,6 +120,7 @@ public:
 
     bool shouldRun(const TestFilter* groupFilters, const TestFilter* nameFilters) const;
     const SimpleString getName() const;
+    const SimpleString getRequirement() const;
     const SimpleString getGroup() const;
     virtual SimpleString getFormattedName() const;
     const SimpleString getFile() const;
@@ -157,6 +158,7 @@ public:
     void setLineNumber(size_t lineNumber);
     void setGroupName(const char *groupName);
     void setTestName(const char *testName);
+    void setRequirement(const char *testReq);
 
     static void crash();
     static void setCrashMethod(void (*crashme)());
@@ -180,13 +182,14 @@ public:
 
 protected:
     UtestShell();
-    UtestShell(const char *groupName, const char *testName, const char *fileName, size_t lineNumber, UtestShell *nextTest);
+    UtestShell(const char *groupName, const char *testName, const char *testReq, const char *fileName, size_t lineNumber, UtestShell *nextTest);
 
     virtual SimpleString getMacroName() const;
     TestResult *getTestResult();
 private:
     const char *group_;
     const char *name_;
+    const char *req_;
     const char *file_;
     size_t lineNumber_;
     UtestShell *next_;
@@ -254,7 +257,7 @@ public:
     ExecFunction* testFunction_;
 
     ExecFunctionTestShell(void(*set)() = NULLPTR, void(*tear)() = NULLPTR) :
-        UtestShell("ExecFunction", "ExecFunction", "ExecFunction", 1), setup_(set), teardown_(tear), testFunction_(NULLPTR)
+        UtestShell("ExecFunction", "ExecFunction", "ExecFunction", "ExecFunction", 1), setup_(set), teardown_(tear), testFunction_(NULLPTR)
     {
     }
 
@@ -278,7 +281,7 @@ public:
     IgnoredUtestShell();
     virtual ~IgnoredUtestShell() CPPUTEST_DESTRUCTOR_OVERRIDE;
     explicit IgnoredUtestShell(const char* groupName, const char* testName,
-            const char* fileName, size_t lineNumber);
+            const char* testReq, const char* fileName, size_t lineNumber);
     virtual bool willRun() const CPPUTEST_OVERRIDE;
     virtual void setRunIgnored() CPPUTEST_OVERRIDE;
 protected:
@@ -322,7 +325,7 @@ class TestInstaller
 {
 public:
     explicit TestInstaller(UtestShell& shell, const char* groupName, const char* testName,
-            const char* fileName, size_t lineNumber);
+            const char* testReq, const char* fileName, size_t lineNumber);
     virtual ~TestInstaller();
 
     void unDo();

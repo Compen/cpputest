@@ -64,7 +64,7 @@ public:
     }
 private:
     OutsideTestRunnerUTest() :
-        UtestShell("\n\t NOTE: Assertion happened without being in a test run (perhaps in main?)", "\n\t       Something is very wrong. Check this assertion and fix", "unknown file", 0),
+        UtestShell("\n\t NOTE: Assertion happened without being in a test run (perhaps in main?)", "---", "\n\t       Something is very wrong. Check this assertion and fix", "unknown file", 0),
                 defaultTestResult(defaultOutput)
     {
     }
@@ -148,17 +148,17 @@ bool UtestShell::rethrowExceptions_ = false;
 /******************************** */
 
 UtestShell::UtestShell() :
-    group_("UndefinedTestGroup"), name_("UndefinedTest"), file_("UndefinedFile"), lineNumber_(0), next_(NULLPTR), isRunAsSeperateProcess_(false), hasFailed_(false)
+    group_("UndefinedTestGroup"), name_("UndefinedTest"), req_("UndefinedRequirement"), file_("UndefinedFile"), lineNumber_(0), next_(NULLPTR), isRunAsSeperateProcess_(false), hasFailed_(false)
 {
 }
 
-UtestShell::UtestShell(const char* groupName, const char* testName, const char* fileName, size_t lineNumber) :
-    group_(groupName), name_(testName), file_(fileName), lineNumber_(lineNumber), next_(NULLPTR), isRunAsSeperateProcess_(false), hasFailed_(false)
+UtestShell::UtestShell(const char* groupName, const char* testName, const char* testReq, const char* fileName, size_t lineNumber) :
+    group_(groupName), name_(testName), req_(testReq), file_(fileName), lineNumber_(lineNumber), next_(NULLPTR), isRunAsSeperateProcess_(false), hasFailed_(false)
 {
 }
 
-UtestShell::UtestShell(const char* groupName, const char* testName, const char* fileName, size_t lineNumber, UtestShell* nextTest) :
-    group_(groupName), name_(testName), file_(fileName), lineNumber_(lineNumber), next_(nextTest), isRunAsSeperateProcess_(false), hasFailed_(false)
+UtestShell::UtestShell(const char* groupName, const char* testName, const char* testReq, const char* fileName, size_t lineNumber, UtestShell* nextTest) :
+    group_(groupName), name_(testName), req_(testReq), file_(fileName), lineNumber_(lineNumber), next_(nextTest), isRunAsSeperateProcess_(false), hasFailed_(false)
 {
 }
 
@@ -277,6 +277,11 @@ const SimpleString UtestShell::getName() const
     return SimpleString(name_);
 }
 
+const SimpleString UtestShell::getRequirement() const
+{
+    return SimpleString(req_);
+}
+
 const SimpleString UtestShell::getGroup() const
 {
     return SimpleString(group_);
@@ -343,6 +348,11 @@ void UtestShell::setGroupName(const char* groupName)
 void UtestShell::setTestName(const char* testName)
 {
     name_ = testName;
+}
+
+void UtestShell::setRequirement(const char* testReq)
+{
+    req_ = testReq;
 }
 
 const SimpleString UtestShell::getFile() const
@@ -846,8 +856,8 @@ IgnoredUtestShell::IgnoredUtestShell(): runIgnored_(false)
 {
 }
 
-IgnoredUtestShell::IgnoredUtestShell(const char* groupName, const char* testName, const char* fileName, size_t lineNumber) :
-   UtestShell(groupName, testName, fileName, lineNumber), runIgnored_(false)
+IgnoredUtestShell::IgnoredUtestShell(const char* groupName, const char* testName, const char* testReq, const char* fileName, size_t lineNumber) :
+   UtestShell(groupName, testName, testReq, fileName, lineNumber), runIgnored_(false)
 {
 }
 
@@ -967,10 +977,11 @@ UtestShell* UtestShellPointerArray::get(size_t index) const
 
 ////////////// TestInstaller ////////////
 
-TestInstaller::TestInstaller(UtestShell& shell, const char* groupName, const char* testName, const char* fileName, size_t lineNumber)
+TestInstaller::TestInstaller(UtestShell& shell, const char* groupName, const char* testName, const char* testReq, const char* fileName, size_t lineNumber)
 {
     shell.setGroupName(groupName);
     shell.setTestName(testName);
+    shell.setRequirement(testReq);
     shell.setFileName(fileName);
     shell.setLineNumber(lineNumber);
     TestRegistry::getCurrentRegistry()->addTest(&shell);

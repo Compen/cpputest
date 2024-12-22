@@ -39,6 +39,7 @@ struct JUnitTestCaseResultNode
     }
 
     SimpleString name_;
+    SimpleString req_;
     size_t execTime_;
     TestFailure* failure_;
     bool ignored_;
@@ -140,6 +141,7 @@ void JUnitTestOutput::printCurrentTestStarted(const UtestShell& test)
         impl_->results_.tail_ = impl_->results_.tail_->next_;
     }
     impl_->results_.tail_->name_ = test.getName();
+    impl_->results_.tail_->req_ = test.getRequirement();
     impl_->results_.tail_->file_ = test.getFile();
     impl_->results_.tail_->lineNumber_ = test.getLineNumber();
     if (!test.willRun()) {
@@ -214,6 +216,16 @@ SimpleString JUnitTestOutput::encodeXmlText(const SimpleString& textbody)
     return buf;
 }
 
+SimpleString JUnitTestOutput::encodeRequirements(const SimpleString& requirements)
+{
+    SimpleString buf = StringFromFormat(
+        "<requirements>\n<value>%s</value>\n</requirements>\n", 
+        requirements.asCharString());
+
+    buf.replace("_", "</value>\n<value>");
+    return buf;
+}
+
 void JUnitTestOutput::writeTestCases()
 {
     JUnitTestCaseResultNode* cur = impl_->results_.head_;
@@ -230,7 +242,7 @@ void JUnitTestOutput::writeTestCases()
                 cur->file_.asCharString(),
                 (int) cur->lineNumber_);
         writeToFile(buf.asCharString());
-
+        writeToFile(encodeRequirements(cur->req_));
         impl_->results_.totalCheckCount_ = cur->checkCount_;
 
         if (cur->failure_) {
